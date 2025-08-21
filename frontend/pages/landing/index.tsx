@@ -10,6 +10,7 @@ import {
   Award,
   Phone,
   Mail,
+  Paperclip,
 } from "lucide-react";
 
 const VisibilityToggle = () => {
@@ -116,6 +117,27 @@ const ProfileSidebar = () => (
         medicine
       </p>
     </div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: 24,
+        marginBottom: 20,
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#0ea5e9" }}>
+          1,245
+        </div>
+        <div style={{ fontSize: 12, color: "#64748b" }}>Followers</div>
+      </div>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#10b981" }}>
+          980
+        </div>
+        <div style={{ fontSize: 12, color: "#64748b" }}>Following</div>
+      </div>
+    </div>
     <div style={{ marginBottom: 24 }}>
       <div
         style={{
@@ -161,7 +183,7 @@ const ProfileSidebar = () => (
       </h3>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {[
-          { name: "Expert Cardiologist", color: "#10b981" },
+          // { name: "Expert Cardiologist", color: "#10b981" },
           { name: "Top Contributor", color: "#0ea5e9" },
           { name: "Research Pioneer", color: "#8b5cf6" },
           { name: "Mentor", color: "#f59e0b" },
@@ -284,6 +306,23 @@ const PostForm = () => {
   const [activeTab, setActiveTab] = useState("Case Study");
   const [postTitle, setPostTitle] = useState("");
   const [postContent, setPostContent] = useState("");
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleAttachClick = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setAttachedFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleRemoveFile = (idx: number) => {
+    setAttachedFiles((files) => files.filter((_, i) => i !== idx));
+  };
+
   return (
     <div
       style={{
@@ -307,32 +346,30 @@ const PostForm = () => {
       </h2>
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {[
-            "Announcement",
-            "Case Study",
-            "Research Paper",
-            "Information",
-            "Experience",
-          ].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                padding: "8px 16px",
-                borderRadius: 20,
-                border:
-                  activeTab === tab ? "2px solid #10b981" : "1px solid #e2e8f0",
-                backgroundColor: activeTab === tab ? "#10b98120" : "#fff",
-                color: activeTab === tab ? "#10b981" : "#64748b",
-                fontSize: 14,
-                fontWeight: activeTab === tab ? 600 : 500,
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-            >
-              {tab}
-            </button>
-          ))}
+          {["Announcement", "Case Study", "Research Paper", "Information"].map(
+            (tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 20,
+                  border:
+                    activeTab === tab
+                      ? "2px solid #10b981"
+                      : "1px solid #e2e8f0",
+                  backgroundColor: activeTab === tab ? "#10b98120" : "#fff",
+                  color: activeTab === tab ? "#10b981" : "#64748b",
+                  fontSize: 14,
+                  fontWeight: activeTab === tab ? 600 : 500,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                {tab}
+              </button>
+            )
+          )}
         </div>
       </div>
       <div style={{ marginBottom: 20 }}>
@@ -379,6 +416,28 @@ const PostForm = () => {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <VisibilityToggle />
           <Eye size={16} color="#64748b" />
+          <button
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              marginLeft: 8,
+              display: "flex",
+              alignItems: "center",
+            }}
+            title="Attach files"
+            onClick={handleAttachClick}
+          >
+            <Paperclip size={18} color="#64748b" />
+          </button>
+          <input
+            type="file"
+            multiple
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFilesChange}
+          />
         </div>
         <div style={{ display: "flex", gap: 12 }}>
           <button
@@ -410,6 +469,62 @@ const PostForm = () => {
           </button>
         </div>
       </div>
+      {attachedFiles.length > 0 && (
+        <div style={{ marginTop: 12, marginBottom: 8 }}>
+          <strong style={{ fontSize: 13, color: "#1e293b" }}>
+            Attached Files:
+          </strong>
+          <ul style={{ paddingLeft: 18, margin: 0 }}>
+            {attachedFiles.map((file, idx) => (
+              <li
+                key={idx}
+                style={{
+                  fontSize: 12,
+                  color: "#64748b",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 4,
+                }}
+              >
+                <span
+                  style={{
+                    flex: 1,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {file.name}
+                </span>
+                <button
+                  style={{
+                    background: "#ef4444",
+                    border: "none",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontSize: 12,
+                    padding: "2px 10px",
+                    borderRadius: 6,
+                    boxShadow: "0 1px 4px rgba(239,68,68,0.08)",
+                    transition: "background 0.2s",
+                  }}
+                  title="Remove file"
+                  onClick={() => handleRemoveFile(idx)}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#dc2626")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.background = "#ef4444")
+                  }
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
@@ -442,18 +557,33 @@ const CaseStudyList = () => (
       <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1e293b" }}>
         Recent Case Studies
       </h2>
-      <button
-        style={{
-          color: "#0ea5e9",
-          fontSize: 14,
-          fontWeight: 600,
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        Newest →
-      </button>
+      <div style={{ display: "flex", gap: 12 }}>
+        <button
+          style={{
+            color: "#0ea5e9",
+            fontSize: 14,
+            fontWeight: 600,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Newest →
+        </button>
+        <button
+          style={{
+            color: "#10b981",
+            fontSize: 14,
+            fontWeight: 600,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          View All
+        </button>
+      </div>
     </div>
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {[
@@ -606,7 +736,7 @@ const CaseStudyList = () => (
   </div>
 );
 
-const RecommendedConnections = () => (
+const RecentUpdatesSection = () => (
   <div
     style={{
       backgroundColor: "#fff",
@@ -618,6 +748,9 @@ const RecommendedConnections = () => (
       boxSizing: "border-box",
       width: "100%",
       minWidth: 0,
+      display: "flex",
+      flexDirection: "column",
+      gap: 24,
     }}
   >
     <h3
@@ -625,100 +758,307 @@ const RecommendedConnections = () => (
         fontSize: 18,
         fontWeight: 700,
         color: "#1e293b",
-        marginBottom: 20,
+        marginBottom: 16,
       }}
     >
-      Recommended Connections
+      Updates
     </h3>
-    <div
-      style={{
-        display: "flex",
-        overflowX: "auto",
-        gap: 16,
-        paddingBottom: 8,
-        scrollbarWidth: "thin",
-        scrollbarColor: "#e0e8f0 #fff",
-      }}
-    >
-      {[
-        { name: "Dr. Sarah Wong", specialty: "Oncologist" },
-        { name: "Dr. Michael Chen", specialty: "Neurologist" },
-        { name: "Dr. Sarah Johnson", specialty: "Pediatrician" },
-        { name: "Dr. Robert Kim", specialty: "Surgeon" },
-        { name: "Dr. Priya Patel", specialty: "Dermatologist" },
-        { name: "Dr. John Lee", specialty: "Radiologist" },
-      ].map((doctor, idx) => (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+      <div
+        style={{
+          background: "#f8fafc",
+          borderRadius: 12,
+          padding: 18,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          border: "1px solid #e2e8f0",
+          flex: 1,
+          minWidth: 220,
+        }}
+      >
         <div
-          key={idx}
           style={{
-            minWidth: 180,
-            maxWidth: 220,
-            backgroundColor: "#fafbfc",
-            border: "1px solid #f1f5f9",
-            borderRadius: 12,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-            padding: "16px 12px",
-            textAlign: "center",
             display: "flex",
-            flexDirection: "column",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: 8,
+            marginBottom: 8,
           }}
         >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              backgroundColor: "#e0f2fe",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-              fontWeight: "bold",
-              color: "#0284c7",
-              marginBottom: 8,
-            }}
-          >
-            {doctor.name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")}
-          </div>
           <h4
             style={{
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: 600,
-              color: "#1e293b",
-              margin: "0 0 2px 0",
+              color: "#10b981",
+              margin: 0,
             }}
           >
-            {doctor.name}
+            Announcements
           </h4>
-          <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
-            {doctor.specialty}
-          </p>
           <button
             style={{
-              width: "100%",
-              padding: "6px 12px",
-              backgroundColor: "#10b981",
-              color: "white",
-              border: "none",
-              borderRadius: 6,
-              fontSize: 12,
+              color: "#10b981",
+              fontSize: 13,
               fontWeight: 600,
+              background: "none",
+              border: "none",
               cursor: "pointer",
-              marginTop: 8,
+              textDecoration: "underline",
             }}
           >
-            Connect
+            More
           </button>
         </div>
-      ))}
+        <ul
+          style={{ margin: 0, paddingLeft: 18, color: "#64748b", fontSize: 13 }}
+        >
+          <li>Webinar: Cardiac Imaging - Aug 25</li>
+          <li>Badge Awarded: Top Contributor</li>
+          <li>System Update: New Features Added</li>
+        </ul>
+      </div>
+      <div
+        style={{
+          background: "#f8fafc",
+          borderRadius: 12,
+          padding: 18,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          border: "1px solid #e2e8f0",
+          flex: 1,
+          minWidth: 220,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
+          <h4
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#f59e0b",
+              margin: 0,
+            }}
+          >
+            Research Papers
+          </h4>
+          <button
+            style={{
+              color: "#f59e0b",
+              fontSize: 13,
+              fontWeight: 600,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            More
+          </button>
+        </div>
+        <ul
+          style={{ margin: 0, paddingLeft: 18, color: "#64748b", fontSize: 13 }}
+        >
+          <li>Medical Journal: AI in Healthcare</li>
+          <li>Conference: Global Health Summit</li>
+          <li>Policy: New Guidelines Released</li>
+        </ul>
+      </div>
+      <div
+        style={{
+          background: "#f8fafc",
+          borderRadius: 12,
+          padding: 18,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          border: "1px solid #e2e8f0",
+          flex: 1,
+          minWidth: 220,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
+          <h4
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#0ea5e9",
+              margin: 0,
+            }}
+          >
+            Information
+          </h4>
+          <button
+            style={{
+              color: "#0ea5e9",
+              fontSize: 13,
+              fontWeight: 600,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            More
+          </button>
+        </div>
+        <ul
+          style={{ margin: 0, paddingLeft: 18, color: "#64748b", fontSize: 13 }}
+        >
+          <li>Case study: Advances in Cardiology</li>
+          <li>Research: New Drug Trials</li>
+          <li>Discussion: Patient Care Best Practices</li>
+        </ul>
+      </div>
     </div>
   </div>
 );
+
+const RecommendedConnections = () => {
+  const doctors = [
+    { name: "Dr. Sarah Wong", specialty: "Oncologist" },
+    { name: "Dr. Michael Chen", specialty: "Neurologist" },
+    { name: "Dr. Sarah Johnson", specialty: "Pediatrician" },
+    { name: "Dr. Robert Kim", specialty: "Surgeon" },
+    { name: "Dr. Priya Patel", specialty: "Dermatologist" },
+    { name: "Dr. John Lee", specialty: "Radiologist" },
+  ];
+  return (
+    <div
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        padding: 24,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        border: "1px solid #f0f4f8",
+        marginBottom: 24,
+        boxSizing: "border-box",
+        width: "100%",
+        minWidth: 0,
+      }}
+    >
+      <h3
+        style={{
+          fontSize: 18,
+          fontWeight: 700,
+          color: "#1e293b",
+          marginBottom: 20,
+        }}
+      >
+        Recommended Connections
+      </h3>
+      <div
+        style={{
+          display: "flex",
+          overflowX: "auto",
+          gap: 16,
+          paddingBottom: 8,
+          scrollbarWidth: "thin",
+          scrollbarColor: "#e0e8f0 #fff",
+        }}
+      >
+        {doctors.slice(0, 5).map((doctor, idx) => (
+          <React.Fragment key={idx}>
+            <div
+              style={{
+                minWidth: 180,
+                maxWidth: 220,
+                backgroundColor: "#fafbfc",
+                border: "1px solid #f1f5f9",
+                borderRadius: 12,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                padding: "16px 12px",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  backgroundColor: "#e0f2fe",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  color: "#0284c7",
+                  marginBottom: 8,
+                }}
+              >
+                {doctor.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </div>
+              <h4
+                style={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "#1e293b",
+                  margin: "0 0 2px 0",
+                }}
+              >
+                {doctor.name}
+              </h4>
+              <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+                {doctor.specialty}
+              </p>
+              <button
+                style={{
+                  width: "100%",
+                  padding: "6px 12px",
+                  backgroundColor: "#10b981",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  marginTop: 8,
+                }}
+              >
+                Connect
+              </button>
+            </div>
+            {idx === 4 && (
+              <button
+                style={{
+                  minWidth: 100,
+                  height: 48,
+                  alignSelf: "center",
+                  background: "#e0e8f0",
+                  color: "#1e293b",
+                  border: "none",
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  marginLeft: 8,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                }}
+                title="Show more connections"
+              >
+                More →
+              </button>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const Landing = () => {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -792,165 +1132,8 @@ const Landing = () => {
             </div>
             <div style={{ width: "100%", minWidth: 0 }}>
               <CaseStudyList />
+              <RecentUpdatesSection />
               <RecommendedConnections />
-            </div>
-          </div>
-          <div className="landing-right">
-            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-              <div
-                style={{
-                  backgroundColor: "#fff",
-                  borderRadius: 16,
-                  padding: 24,
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                  border: "1px solid #f0f4f8",
-                  maxHeight: postFormHeight ? postFormHeight : 480,
-                  minHeight: postFormHeight ? postFormHeight : 240,
-                  overflowY: "auto",
-                  boxSizing: "border-box",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 16,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <h3
-                      style={{
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: "#1e293b",
-                        margin: 0,
-                      }}
-                    >
-                      Notifications
-                      <span
-                        style={{
-                          backgroundColor: "#ef4444",
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          padding: "2px 6px",
-                          borderRadius: 10,
-                          marginLeft: 8,
-                        }}
-                      >
-                        3
-                      </span>
-                    </h3>
-                  </div>
-                  <button
-                    style={{
-                      color: "#0ea5e9",
-                      fontSize: 14,
-                      fontWeight: 600,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      marginLeft: "auto",
-                    }}
-                  >
-                    More →
-                  </button>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 12,
-                    marginBottom: 18,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {notificationCategories.map((cat) => (
-                    <button
-                      key={cat.label}
-                      onClick={() => setActiveCategory(cat.label)}
-                      style={{
-                        padding: "6px 16px",
-                        borderRadius: 20,
-                        border:
-                          activeCategory === cat.label
-                            ? "2px solid #10b981"
-                            : "1px solid #e2e8f0",
-                        backgroundColor:
-                          activeCategory === cat.label ? "#10b98120" : "#fff",
-                        color:
-                          activeCategory === cat.label ? "#10b981" : "#64748b",
-                        fontSize: 13,
-                        fontWeight: activeCategory === cat.label ? 600 : 500,
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      {cat.label}
-                      <span
-                        style={{
-                          backgroundColor:
-                            activeCategory === cat.label
-                              ? "#10b981"
-                              : "#e2e8f0",
-                          color:
-                            activeCategory === cat.label ? "#fff" : "#64748b",
-                          fontSize: 11,
-                          fontWeight: 600,
-                          padding: "2px 7px",
-                          borderRadius: 10,
-                          marginLeft: 4,
-                        }}
-                      >
-                        {cat.count}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <div
-                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
-                >
-                  {notificationItems
-                    .filter(
-                      (item) =>
-                        activeCategory === "All" ||
-                        item.category === activeCategory
-                    )
-                    .map((item, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          padding: 12,
-                          borderLeft: `3px solid ${item.color}`,
-                          backgroundColor: item.bg,
-                        }}
-                      >
-                        <p
-                          style={{
-                            fontSize: 13,
-                            color: "#1e293b",
-                            margin: "0 0 4px 0",
-                            fontWeight: 500,
-                          }}
-                        >
-                          {item.text}
-                        </p>
-                        <span style={{ fontSize: 11, color: "#64748b" }}>
-                          ⏰ {item.time}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -958,12 +1141,12 @@ const Landing = () => {
       <style jsx>{`
         .landing-grid {
           display: grid;
-          grid-template-columns: 320px 1fr 360px;
+          grid-template-columns: 320px 1fr;
           gap: 24px;
         }
         @media (max-width: 1200px) {
           .landing-grid {
-            grid-template-columns: 280px 1fr 300px;
+            grid-template-columns: 280px 1fr;
           }
         }
         @media (max-width: 968px) {
@@ -976,9 +1159,6 @@ const Landing = () => {
           }
           .landing-main {
             order: 1;
-          }
-          .landing-right {
-            order: 3;
           }
         }
         .landing-main {
