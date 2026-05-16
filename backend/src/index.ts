@@ -35,6 +35,7 @@ initializeApp();
 app.use(helmet());
 const defaultAllowedOrigins = [
   'https://medinternia.vercel.app',
+  'https://med-internia.vercel.app',
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:5173',
@@ -43,17 +44,33 @@ const defaultAllowedOrigins = [
   'http://127.0.0.1:5173'
 ];
 
-const allowedOrigins = [
-  ...defaultAllowedOrigins,
-  ...(process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
-    : [])
-];
+const normalizeOrigin = (value: string): string => {
+  const trimmed = value.trim();
+  try {
+    return new URL(trimmed).origin.toLowerCase();
+  } catch {
+    return trimmed.replace(/\/+$/, '').toLowerCase();
+  }
+};
+
+const allowedOrigins = new Set(
+  [
+    ...defaultAllowedOrigins,
+    ...(process.env.CORS_ORIGINS
+      ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
+      : [])
+  ].map(normalizeOrigin)
+);
+
+const isAllowedOrigin = (origin: string): boolean => {
+  const normalizedOrigin = normalizeOrigin(origin);
+  return allowedOrigins.has(normalizedOrigin);
+};
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (isAllowedOrigin(origin)) return callback(null, true);
     return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -73,7 +90,7 @@ app.use(cors({
 app.options(/.*/, cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (isAllowedOrigin(origin)) return callback(null, true);
     return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   optionsSuccessStatus: 204
