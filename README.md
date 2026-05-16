@@ -247,21 +247,21 @@ Thanks to all the amazing contributors who help improve MedInternia ❤️
 
 <td align="center">
   <a href="https://github.com/Anushka-Verma-CODES">
-<img src="https://github.com/github.png" width="100px;" alt=""/>
+<img src="https://github.com/Anushka-Verma-CODES.png" width="100px;" alt=""/>
 <br />
 <sub><b>Anushka Verma</b></sub>
 </td>
 
 <td align="center">
 <a href="https://github.com/IshwinderKaur8">
-<img src="https://github.com/github.png" width="100px;" alt=""/>
+<img src="https://github.com/IshwinderKaur8.png" width="100px;" alt=""/>
 <br />
 <sub><b>Ishwinder Kaur Ahluwalia</b></sub>
 </td>
 
 <td align="center">
 <a href="https://github.com/bhagya-prog">
-<img src="https://github.com/github.png" width="100px;" alt=""/>
+<img src="https://github.com/bhagya-prog.png" width="100px;" alt=""/>
 <br />
 <sub><b>Bhagya Vardhan</b></sub>
 </td>
