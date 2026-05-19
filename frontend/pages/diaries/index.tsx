@@ -316,7 +316,7 @@ const DiariesPage: React.FC = () => {
                                 </div>
                                 <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>Stats: Diaries: {diaries.length}, Days Logged: {diaries.reduce((a, d) => a + d.entries.length, 0)}, Avg Entries/Week: {Math.round(diaries.reduce((a, d) => a + d.entries.length, 0) / 2)}</div>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, flex: 1 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12, flex: '0 1 360px', minWidth: 240 }}>
                                 <div className="med-card" style={{ padding: 14, minWidth: 75, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                     <FaBookOpen size={28} color="#74a9bf" style={{ marginBottom: 6 }} />
                                     <span className="med-blue" style={{ fontWeight: 700, fontSize: 15 }}>7 days</span>
