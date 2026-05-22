@@ -1,4 +1,7 @@
-// removed unused qrcode.react import (caused TypeScript default-export error)
+// GSSoC: Replaced emoji icons with Lucide SVG icons
+import { FolderOpen, Briefcase, Mic, Trophy } from 'lucide-react';
+// GSSoC: framer-motion for scroll-triggered section transitions
+import { motion } from 'framer-motion';
 import {
   Alert,
   Box,
@@ -60,64 +63,64 @@ const HomePage = () => {
         sx={{
           maxWidth: '100vw',
           mx: 0,
-          pt: { xs: 2, md: 4 },
-          pb: 2,
+          pt: { xs: 4, md: 6 },
+          pb: { xs: 4, md: 6 },
           mb: { xs: 2, md: 3 },
           position: "relative",
           zIndex: 1,
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          textAlign: 'center',
+          px: 2,
         }}
       >
-        <Box sx={{ textAlign: 'left' }}>
-          <Typography
-            variant="h1"
-            fontWeight={900}
-            color="#2193b0"
-            mb={2}
-            sx={{ letterSpacing: 1, fontSize: { xs: "3.5rem", md: "5rem" }, textAlign: 'center' }}
-          >
-            MedInternia
-          </Typography>
-          <Typography
-            variant="h5"
-            color="#555"
-            mb={4}
-            sx={{ fontWeight: 500, fontSize: { xs: "1.7rem", md: "2.2rem" }, textAlign: 'center' }}
-          >
-            Your gateway to medical learning, jobs, and opportunities.
-          </Typography>
-        </Box>
+        <Typography
+          variant="h1"
+          fontWeight={900}
+          color="#2193b0"
+          mb={2}
+          sx={{ letterSpacing: 1, fontSize: { xs: "3rem", sm: "3.5rem", md: "5rem" } }}
+        >
+          MedInternia
+        </Typography>
+        <Typography
+          variant="h5"
+          color="#555"
+          mb={4}
+          sx={{ fontWeight: 500, fontSize: { xs: "1.25rem", sm: "1.7rem", md: "2.2rem" }, maxWidth: 800 }}
+        >
+          Your gateway to medical learning, jobs, and opportunities.
+        </Typography>
         <Button
           variant="contained"
           size="large"
           sx={{
             borderRadius: 30,
-            px: 5,
-            py: 1.5,
+            px: { xs: 4, md: 5 },
+            py: { xs: 1.2, md: 1.5 },
             fontWeight: 700,
             fontSize: "1.2rem",
             background: "linear-gradient(90deg, #1de9b6 0%, #2193b0 100%)",
-            boxShadow: "0 4px 24px #2193b044",
-            transition: "transform 0.2s",
-            position: 'absolute',
-            right: { xs: 16, md: 64 },
-            top: { xs: 32, md: 64 },
+            color: "#ffffff",
+            boxShadow: "0 4px 14px 0 rgba(33,147,176,0.18)",
+            transition: "all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)",
             whiteSpace: 'nowrap',
             minWidth: '180px',
+            borderBottom: "none !important",
             '&:hover': {
-              transform: 'scale(1.07)',
-              boxShadow: '0 8px 32px #2193b066',
+              transform: 'scale(1.05)',
+              boxShadow: '0 8px 24px rgba(33,147,176,0.28)',
               background: 'linear-gradient(90deg, #2193b0 0%, #1de9b6 100%)',
+              color: "#ffffff",
+              borderBottom: "none !important",
             },
           }}
           href="/auth/login"
         >
           Get Started
         </Button>
-
       </Box>
       {/* Local video player below Hero section */}
       <Box sx={{ mt: 2, mb: 4, display: 'flex', justifyContent: 'center' }}>
@@ -126,6 +129,13 @@ const HomePage = () => {
           Your browser does not support the video tag.
         </video>
   </Box>
+      {/* GSSoC: Scroll-triggered entrance animation on cards section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
       {/* 4 Main Cards Section (Cases, Jobs, Webinars, Leaderboard) */}
       <Box
         sx={{
@@ -147,49 +157,37 @@ const HomePage = () => {
           <CardLink
             href="/cases"
             title="Cases"
-            icon={
-              <span style={{ fontSize: 48 }} role="img" aria-label="Cases">
-                📂
-              </span>
-            }
+            icon={<FolderOpen size={48} color="#2193b0" aria-hidden="true" />}
             desc="Explore and analyze real medical cases."
           />
           <CardLink
             href="/jobs"
             title="Jobs"
-            icon={
-              <span style={{ fontSize: 48 }} role="img" aria-label="Jobs">
-                💼
-              </span>
-            }
+            icon={<Briefcase size={48} color="#2193b0" aria-hidden="true" />}
             desc="Find internships and opportunities."
           />
           <CardLink
             href="/webinars"
             title="Webinars"
-            icon={
-              <span style={{ fontSize: 48 }} role="img" aria-label="Webinars">
-                🎤
-              </span>
-            }
+            icon={<Mic size={48} color="#2193b0" aria-hidden="true" />}
             desc="Join live AMAs and sessions."
           />
           <CardLink
             href="/leaderboard"
             title="Leaderboard"
-            icon={
-              <span
-                style={{ fontSize: 48 }}
-                role="img"
-                aria-label="Leaderboard"
-              >
-                🏆
-              </span>
-            }
+            icon={<Trophy size={48} color="#2193b0" aria-hidden="true" />}
             desc="Track contributors and ranks."
           />
         </Stack>
       </Box>
+      </motion.div>
+      {/* GSSoC: Scroll-triggered entrance animation on leaderboard section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
       {/* Leaderboard Preview Section */}
       <Box
         sx={{
@@ -224,6 +222,13 @@ const HomePage = () => {
                 minWidth: 120,
                 textAlign: "center",
                 background: "#e0eafc",
+                transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                cursor: "pointer",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 8px 24px rgba(33, 147, 176, 0.22)",
+                  background: "#ffffff",
+                }
               }}
             >
               <Typography variant="subtitle1" fontWeight={700} color="#2193b0">
@@ -236,6 +241,14 @@ const HomePage = () => {
           ))}
         </Box>
       </Box>
+      </motion.div>
+      {/* GSSoC: Scroll-triggered entrance animation on features section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
       {/* Features Section */}
       <Box
         sx={{
@@ -264,6 +277,14 @@ const HomePage = () => {
         </ul>
   {/* Login/Register buttons removed as requested */}
       </Box>
+      </motion.div>
+      {/* GSSoC: Scroll-triggered entrance animation on mobile app promotion section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
       <Box
         sx={{
           maxWidth: 900,
@@ -323,6 +344,14 @@ const HomePage = () => {
           </Typography>
         </Box>
       </Box>
+      </motion.div>
+      {/* GSSoC: Scroll-triggered entrance animation on How It Works section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
       {/* How it works / Testimonials Section */}
       <Box
         sx={{
@@ -343,6 +372,7 @@ const HomePage = () => {
           justifyContent="center"
           alignItems="stretch"
         >
+          {/* GSSoC: Added premium hover animation to card */}
           <Paper
             elevation={2}
             sx={{
@@ -351,6 +381,12 @@ const HomePage = () => {
               textAlign: "center",
               flex: 1,
               minWidth: 220,
+              transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+              "&:hover": {
+                transform: "translateY(-8px)",
+                boxShadow: "0 12px 28px rgba(33, 147, 176, 0.15)",
+                background: "linear-gradient(145deg, #ffffff 0%, #f4fafd 100%)"
+              }
             }}
           >
             <Typography variant="h6" fontWeight={700} color="#2193b0" mb={1}>
@@ -360,6 +396,7 @@ const HomePage = () => {
               Create your free account and set up your medical profile.
             </Typography>
           </Paper>
+          {/* GSSoC: Added premium hover animation to card */}
           <Paper
             elevation={2}
             sx={{
@@ -368,6 +405,12 @@ const HomePage = () => {
               textAlign: "center",
               flex: 1,
               minWidth: 220,
+              transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+              "&:hover": {
+                transform: "translateY(-8px)",
+                boxShadow: "0 12px 28px rgba(33, 147, 176, 0.15)",
+                background: "linear-gradient(145deg, #ffffff 0%, #f4fafd 100%)"
+              }
             }}
           >
             <Typography variant="h6" fontWeight={700} color="#2193b0" mb={1}>
@@ -378,6 +421,7 @@ const HomePage = () => {
               knowledge.
             </Typography>
           </Paper>
+          {/* GSSoC: Added premium hover animation to card */}
           <Paper
             elevation={2}
             sx={{
@@ -386,6 +430,12 @@ const HomePage = () => {
               textAlign: "center",
               flex: 1,
               minWidth: 220,
+              transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+              "&:hover": {
+                transform: "translateY(-8px)",
+                boxShadow: "0 12px 28px rgba(33, 147, 176, 0.15)",
+                background: "linear-gradient(145deg, #ffffff 0%, #f4fafd 100%)"
+              }
             }}
           >
             <Typography variant="h6" fontWeight={700} color="#2193b0" mb={1}>
@@ -397,12 +447,21 @@ const HomePage = () => {
           </Paper>
         </Stack>
       </Box>
+      </motion.div>
+      {/* GSSoC: Scroll-triggered entrance animation on Help/Contact section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
       <Box
         sx={{
           maxWidth: 900,
           mx: "auto",
           py: 4,
           textAlign: "center",
+          mb: { xs: 4, md: 6 },
         }}
       >
         <Paper
@@ -438,14 +497,25 @@ const HomePage = () => {
               px: 4,
               py: 1,
               fontWeight: 700,
-              background:
-                "linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%)",
+              background: "linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%)",
+              color: "#ffffff",
+              boxShadow: "0 4px 14px 0 rgba(33,147,176,0.18)",
+              borderBottom: "none !important",
+              transition: "all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)",
+              "&:hover": {
+                background: "linear-gradient(90deg, #1565c0 0%, #2193b0 100%)",
+                transform: "scale(1.04)",
+                boxShadow: "0 6px 20px 0 rgba(33,147,176,0.28)",
+                color: "#ffffff",
+                borderBottom: "none !important",
+              }
             }}
           >
             Contact Us
           </Button>
         </Paper>
       </Box>
+      </motion.div>
     </Box>
   );
   // CardLink component for homepage cards
