@@ -30,8 +30,13 @@ Code:
 """
 
 if provider == "openai":
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("OPENAI_API_KEY is not set; skipping OpenAI review.")
+        raise SystemExit(0)
+
     client = OpenAI(
-        api_key=os.getenv("OPENAI_API_KEY")
+        api_key=api_key
     )
 
     response = client.responses.create(
@@ -42,8 +47,13 @@ if provider == "openai":
     print(response.output_text)
 
 elif provider == "gemini":
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("GEMINI_API_KEY is not set; skipping Gemini review.")
+        raise SystemExit(0)
+
     genai.configure(
-        api_key=os.getenv("GEMINI_API_KEY")
+        api_key=api_key
     )
 
     model = genai.GenerativeModel(
