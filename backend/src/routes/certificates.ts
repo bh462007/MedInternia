@@ -17,13 +17,13 @@ const router = Router();
 router.post('/generate', authenticate, requirePermission('certificate:issue'), generateCertificate);
 
 // Get certificates for user
-router.get('/user/:userId', authenticate, getUserCertificates);
+router.get('/user/:userId', getUserCertificates);
 
 // Get certificate by certificate ID
-router.get('/:certificateId', authenticate, getCertificateById);
+router.get('/:certificateId', getCertificateById);
 
 // Verify certificate
-router.post('/verify', authenticate, verifyCertificate);
+router.post('/verify', verifyCertificate);
 
 // Get certificates issued by doctor
 router.get('/doctor/issued', authenticate, requirePermission('certificate:issue'), getDoctorIssuedCertificates);
@@ -32,6 +32,6 @@ router.get('/doctor/issued', authenticate, requirePermission('certificate:issue'
 router.patch('/:certificateId/revoke', authenticate, requirePermission('certificate:issue'), revokeCertificate);
 
 // Export certificate data
-router.get('/:certificateId/export', authenticate, exportCertificateData);
+router.get('/:certificateId/export', exportCertificateData);
 
 export default router;

@@ -21,7 +21,7 @@ router.get('/', getAllBadges);
 router.post('/award', authenticate, requirePermission('badge:manage'), awardBadge);
 
 // Get user badges
-router.get('/user/:userId', authenticate, getUserBadges);
+router.get('/user/:userId', getUserBadges);
 
 // Toggle badge visibility
 router.patch('/:userBadgeId/visibility', authenticate, toggleBadgeVisibility);
