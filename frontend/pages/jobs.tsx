@@ -32,6 +32,7 @@ import { useRouter } from "next/router";
 import api from "../utils/api";
 import { hasAuthToken, redirectToLogin } from "../utils/authRedirect";
 import { getCurrentUserRole } from "../utils/permissions";
+import RecentlyViewedInternships from "../components/RecentlyViewedInternships";
 
 interface JobApplication {
   id: string;
@@ -69,7 +70,12 @@ export default function Jobs() {
   useEffect(() => {
     if (!authChecked) return;
 
-    const storedUser = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "null") : null;
+    let storedUser = null;
+    try {
+      storedUser = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "null") : null;
+    } catch {
+      storedUser = null;
+    }
     const currentUserType = storedUser?.userType || getCurrentUserRole() || "";
     setUserType(String(currentUserType).toLowerCase());
 
@@ -150,7 +156,11 @@ export default function Jobs() {
           <Alert severity="info" sx={{ mb: 3, textAlign: "center", borderRadius: 3 }}>
             Job opportunities are currently available for doctors and interns.
           </Alert>
-        ) : null}
+        ) : (
+          <Box sx={{ width: "100%", mb: 3 }}>
+            <RecentlyViewedInternships />
+          </Box>
+        )}
 
         <Box sx={{ mb: 4, textAlign: "center" }}>
           <Typography variant="h3" fontWeight={900} color="#1565c0" gutterBottom>
