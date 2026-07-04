@@ -5,6 +5,7 @@ import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import PushPinIcon from '@mui/icons-material/PushPin';
+import {getCurrentUserRole} from "../utils/permissions";
 
 // Helper to get owner name from doctor field
 function getOwnerName(caseData: any) {
@@ -32,6 +33,7 @@ function getOwnerAvatar(caseData: any) {
 export default function CaseCard({ caseData, onOpenDiscussion, onReadMore, isExpanded }: { caseData: any, onOpenDiscussion?: (caseId: string) => void, onReadMore?: () => void, isExpanded?: boolean }) {
   const [starred, setStarred] = useState(false);
   const [showPinned, setShowPinned] = useState(false);
+  const userRole = getCurrentUserRole();
 
   useEffect(() => {
     setStarred(!!caseData.isStarred);
@@ -211,6 +213,7 @@ export default function CaseCard({ caseData, onOpenDiscussion, onReadMore, isExp
               },
             }}
             onClick={() => onOpenDiscussion && onOpenDiscussion(caseData._id)}
+            disabled={userRole === 'patient'}
           >
             Discussions
           </Button>

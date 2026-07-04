@@ -19,6 +19,7 @@ import CaseCard from '../../components/CaseCard';
 import api from "../../utils/api";
 import Link from "next/link";
 import { canUser } from "../../utils/permissions";
+import {getCurrentUserRole} from "../../utils/permissions";
 
 import dynamic from 'next/dynamic';
 const CaseDiscussion = dynamic(() => import('./[id]'), { ssr: false });
@@ -30,6 +31,7 @@ export default function Cases() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [openDiscussionId, setOpenDiscussionId] = useState<string | null>(null);
   const [canCreateCases, setCanCreateCases] = useState(false);
+  const userRole = getCurrentUserRole();
 
   useEffect(() => {
     api
@@ -100,6 +102,7 @@ export default function Cases() {
             }}
             component={Link}
             href="/cases/create"
+            disabled={userRole === 'patient'|| userRole === 'intern'}
           >
             + Create New Case
           </Button>
