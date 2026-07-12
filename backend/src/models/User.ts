@@ -47,6 +47,13 @@ passwordResetExpires?: Date;
   certificatesEarned: number;
   linkedInProfile?: string;
   githubProfile?: string;
+  orcidId?: string;
+  publications?: {
+    title: string;
+    year: string;
+    journal: string;
+    url: string;
+  }[];
   bio?: string;
   profilePicture?: string;
   // Doctor specific fields
@@ -249,6 +256,15 @@ passwordResetExpires: {
     type: String,
     match: [/^https:\/\/(www\.)?github\.com\/.*/, 'Please provide a valid GitHub URL']
   },
+  orcidId: {
+    type: String,
+  },
+  publications: [{
+    title: { type: String },
+    year: { type: String },
+    journal: { type: String },
+    url: { type: String }
+  }],
   bio: {
     type: String,
     maxlength: [500, 'Bio cannot exceed 500 characters']
