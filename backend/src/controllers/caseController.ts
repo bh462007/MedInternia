@@ -14,6 +14,7 @@ import {
 import { analyzeCase } from "../services/aiTaggerService";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AppError } from "../utils/AppError";
+import { uploadCaseAttachment } from "../utils/cloudinary";
 
 const canModerateComments = (userType?: string) =>
   ["admin", "doctor", "moderator"].includes(userType ?? "");
@@ -375,6 +376,40 @@ export const rateComment = asyncHandler(
   },
 );
 
+// Upload a case attachment
+export const uploadAttachment = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+      throw new AppError("User not authenticated", 401);
+    }
+    if (!req.file) {
+      throw new AppError("No file uploaded", 400);
+    }
+
+    const uploadResult = await uploadCaseAttachment(req.file, String(req.user._id));
+    
+    // Determine attachment type from resource_type or mimetype
+    let type = 'image';
+    if (uploadResult.resource_type === 'video') {
+      if (req.file.mimetype.startsWith('audio/')) {
+        type = 'audio';
+      } else {
+        type = 'video';
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Attachment uploaded successfully",
+      data: {
+        url: uploadResult.secure_url,
+        type,
+        publicId: uploadResult.public_id,
+      },
+    });
+  }
+);
+
 // Create a new case (Doctor only)
 export const createCase = asyncHandler(
   async (req: AuthRequest, res: Response) => {
@@ -397,7 +432,10 @@ export const createCase = asyncHandler(
       description,
       patientInfo,
       images,
+      attachments,
       specialization,
+      isRareDisease,
+      verifiedDoctorsOnly,
     } = req.body;
 
     const spec = specialization || user.specialization || "General Medicine";
@@ -410,16 +448,19 @@ export const createCase = asyncHandler(
       const newCase = new Case({
         title,
         description,
-        symptoms: aiAnalysis.symptoms,
+        symptoms: req.body.symptoms?.length ? req.body.symptoms : aiAnalysis.symptoms,
         patientInfo: patientInfo || {},
         diagnosis: aiAnalysis.diagnosis,
         treatment: aiAnalysis.treatment,
         images: images || [],
-        tags: aiAnalysis.tags,
+        attachments: attachments || [],
+        tags: req.body.tags?.length ? req.body.tags : aiAnalysis.tags,
         difficulty: aiAnalysis.difficulty,
         specialization: aiAnalysis.specialty || spec,
         doctor: user._id as any,
         isPatientCase: true,
+        isRareDisease: isRareDisease === true,
+        verifiedDoctorsOnly: verifiedDoctorsOnly === true,
         moderationStatus: "pending",
         moderationAuditTrail: [
           {
@@ -453,16 +494,19 @@ export const createCase = asyncHandler(
     const newCase = new Case({
       title,
       description,
-      symptoms: aiAnalysis.symptoms,
+      symptoms: req.body.symptoms?.length ? req.body.symptoms : aiAnalysis.symptoms,
       patientInfo: patientInfo || {},
       diagnosis: aiAnalysis.diagnosis,
       treatment: aiAnalysis.treatment,
       images: images || [],
-      tags: aiAnalysis.tags,
+      attachments: attachments || [],
+      tags: req.body.tags?.length ? req.body.tags : aiAnalysis.tags,
       difficulty: aiAnalysis.difficulty,
       specialization: aiAnalysis.specialty || spec,
       doctor: user._id as any,
       isPatientCase: false,
+      isRareDisease: isRareDisease === true,
+      verifiedDoctorsOnly: verifiedDoctorsOnly === true,
       moderationStatus: "approved",
       moderationAuditTrail: [
         {
@@ -483,6 +527,34 @@ export const createCase = asyncHandler(
 
     await Case.findByIdAndUpdate(newCase._id, { pointsAwarded: pointsForCase });
 
+    // Trigger Automated Peer-Review Matching
+    (async () => {
+      try {
+        const targetSpec = aiAnalysis.specialty || spec;
+        const matchedSpecialists = await User.aggregate([
+          {
+            $match: {
+              isVerifiedDoctor: true,
+              specialization: targetSpec,
+              _id: { $ne: new mongoose.Types.ObjectId(user._id) }
+            }
+          },
+          { $sample: { size: 5 } }
+        ]);
+
+        for (const specialist of matchedSpecialists) {
+          await createAndEmitNotification({
+            recipientId: specialist._id.toString(),
+            type: 'peer_review',
+            message: `A new ${targetSpec} case requires peer review. Your expertise is requested!`,
+            link: `/cases/${newCase._id}`
+          });
+        }
+      } catch (err) {
+        console.error("Failed to execute peer-review matching:", err);
+      }
+    })();
+
     res.status(201).json({
       success: true,
       message: "Case created successfully",
@@ -502,13 +574,22 @@ export const getCases = asyncHandler(
       difficulty,
       tags,
       doctor,
+      isRareDisease,
       page = 1,
       limit = 10,
       search,
       sortBy = "newest",
     } = req.query;
 
+    const user = req.user as any;
+    const isVerifiedDoctor = user && (user.isVerifiedDoctor || user.userType === "admin");
+
     const filter: any = { isActive: true, $and: [publicCaseFilter] };
+
+    // Apply RBAC for verified doctors only cases
+    if (!isVerifiedDoctor) {
+      filter.verifiedDoctorsOnly = { $ne: true };
+    }
 
     if (specialization) {
       filter.specialization = { $regex: specialization, $options: "i" };
@@ -516,6 +597,12 @@ export const getCases = asyncHandler(
 
     if (difficulty) {
       filter.difficulty = difficulty;
+    }
+
+    if (isRareDisease === "true") {
+      filter.isRareDisease = true;
+    } else if (isRareDisease === "false") {
+      filter.isRareDisease = false;
     }
 
     if (tags) {
@@ -599,9 +686,20 @@ export const getCaseById = asyncHandler(
     if (!caseData.isActive) {
       throw new AppError("Case is no longer available", 404);
     }
-    const user = req.user as { _id?: string; userType?: string } | undefined;
+    const user = req.user as { _id?: string; userType?: string; isVerifiedDoctor?: boolean } | undefined;
+    
+    // RBAC check for restricted cases
+    if (caseData.verifiedDoctorsOnly) {
+      const isVerifiedDoctor = user && (user.isVerifiedDoctor || user.userType === "admin");
+      const isOwner = user?._id && caseData.doctor._id.toString() === user._id.toString();
+      
+      if (!isVerifiedDoctor && !isOwner) {
+        throw new AppError("Access Denied: This case is restricted to Verified Doctors only", 403);
+      }
+    }
+    
     const isOwner =
-      user?._id && caseData.doctor.toString() === user._id.toString();
+      user?._id && (caseData.doctor._id ? caseData.doctor._id.toString() : caseData.doctor.toString()) === user._id.toString();
     const isApproved =
       !caseData.moderationStatus || caseData.moderationStatus === "approved";
     if (!isApproved && !isOwner && !canModerateCases(user?.userType)) {
