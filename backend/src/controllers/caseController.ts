@@ -461,11 +461,11 @@ export const createCase = asyncHandler(
         isPatientCase: true,
         isRareDisease: isRareDisease === true,
         verifiedDoctorsOnly: verifiedDoctorsOnly === true,
-        moderationStatus: "pending",
+        moderationStatus: req.body.isFlaggedForReview ? "pending" : "pending",
         moderationAuditTrail: [
           {
             status: "pending",
-            reason: "Patient-submitted case awaiting review",
+            reason: req.body.reviewReason || "Patient-submitted case awaiting review",
             reviewedAt: new Date(),
           },
         ],
@@ -507,12 +507,12 @@ export const createCase = asyncHandler(
       isPatientCase: false,
       isRareDisease: isRareDisease === true,
       verifiedDoctorsOnly: verifiedDoctorsOnly === true,
-      moderationStatus: "approved",
+      moderationStatus: req.body.isFlaggedForReview ? "pending" : "approved",
       moderationAuditTrail: [
         {
-          status: "approved",
-          reason: "Doctor-authored case published automatically",
-          reviewedBy: user._id as any,
+          status: req.body.isFlaggedForReview ? "pending" : "approved",
+          reason: req.body.reviewReason || "Doctor-authored case published automatically",
+          reviewedBy: req.body.isFlaggedForReview ? undefined : user._id as any,
           reviewedAt: new Date(),
         },
       ],
