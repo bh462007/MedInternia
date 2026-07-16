@@ -129,7 +129,7 @@ export default function Navbar({ route }: { route?: string }) {
     if (typeof window !== 'undefined') {
       const token = getAuthToken();
       if (token) {
-        router.push('/dashboard');
+        router.push('/landing');
         return;
       }
     }
