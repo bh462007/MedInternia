@@ -6,7 +6,8 @@ import {
 import api from '../../utils/api';
 import { BookOpen, Award, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/router';
-import { withAuth } from '../../components/withAuth'; 
+import { withAuth } from '../../components/withAuth';
+import { demoLearningPaths } from '../../utils/demoData';
 
 function LearningPathsDashboard() {
   const [paths, setPaths] = useState<any[]>([]);
@@ -20,9 +21,11 @@ function LearningPathsDashboard() {
   const fetchPaths = async () => {
     try {
       const response = await api.get('/learning-paths');
-      setPaths(response.data.data.learningPaths);
+      const fetchedPaths = response.data.data.learningPaths || [];
+      setPaths(fetchedPaths.length > 0 ? fetchedPaths : demoLearningPaths);
     } catch (error) {
       console.error('Failed to fetch learning paths', error);
+      setPaths(demoLearningPaths);
     } finally {
       setLoading(false);
     }
@@ -147,9 +150,10 @@ function LearningPathsDashboard() {
                             fullWidth 
                             size="large"
                             onClick={() => handleEnroll(path._id)}
+                            disabled={path.isDemo}
                             sx={{ borderRadius: 3, fontWeight: 700, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
                           >
-                            Enroll Now
+                            {path.isDemo ? 'Sample Path' : 'Enroll Now'}
                           </Button>
                         </Box>
                       )}
@@ -170,4 +174,4 @@ function LearningPathsDashboard() {
     </>
   );
 }
-export default withAuth(LearningPathsDashboard); 
+export default withAuth(LearningPathsDashboard);

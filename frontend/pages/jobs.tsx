@@ -43,6 +43,7 @@ import { Briefcase } from "lucide-react";
 import RecentlyViewedInternships from "../components/RecentlyViewedInternships";
 import DeadlineCountdown from "../components/DeadlineCountdown";
 import JobFilters from "../components/layout/JobFilters";
+import { demoJobs } from "../utils/demoData";
 
 interface JobApplication {
   id: string;
@@ -205,14 +206,17 @@ export default function Jobs() {
           const scoreB = b.matchPercentage !== undefined ? b.matchPercentage : -1;
           return scoreB - scoreA;
         });
-        setJobs(sortedJobs);
+        const hasActiveFilters = filterSpecialty.length > 0 || !!filterExperience || filterRemote || filterVisa;
+        const jobsToShow = sortedJobs.length > 0 || hasActiveFilters ? sortedJobs : demoJobs;
+        setJobs(jobsToShow);
         if (!filterSpecialty.length && !filterExperience && !filterRemote && !filterVisa) {
-          setOriginalJobs(sortedJobs);
+          setOriginalJobs(jobsToShow);
         }
         setLoading(false);
       })
       .catch(() => {
-        setError("Failed to fetch jobs");
+        setJobs(demoJobs);
+        setOriginalJobs(demoJobs);
         setLoading(false);
       });
   }, [authChecked, filterSpecialty, filterExperience, filterRemote, filterVisa, smartSearchActive]);
@@ -232,6 +236,22 @@ export default function Jobs() {
     // Add to applications list in localstorage
     const exists = applications.find(app => app.id === job._id);
     if (exists) return;
+
+    if (job.isDemo) {
+      const newApp: JobApplication = {
+        id: job._id,
+        title: job.title,
+        company: job.company || 'MedInternia Hospital Group',
+        location: job.location,
+        status: 'Applied',
+        appliedDate: new Date().toLocaleDateString()
+      };
+
+      const updated = [newApp, ...applications];
+      setApplications(updated);
+      localStorage.setItem('jobApplications', JSON.stringify(updated));
+      return;
+    }
 
     try {
       await api.post(`/jobs/${job._id}/apply`);
